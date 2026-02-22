@@ -108,7 +108,11 @@ def build_vector_database():
     data = load_processed_data()
     documents, metadata = convert_to_documents(data)
     embeddings = generate_embeddings(documents)
+
+    print( "**************************************************")
+    print(embeddings);
     store_in_chromadb(documents, embeddings, metadata)
+    print( "**************************************************")
 
     print("Vector database created successfully!")
 
