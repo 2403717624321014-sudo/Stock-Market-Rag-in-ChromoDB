@@ -57,6 +57,7 @@ def generate_embeddings(documents):
 # -------------------------
 client = chromadb.PersistentClient(path="./stock_vector_db")
 
+# Get or create the collection (used for querying)
 collection = client.get_or_create_collection(
     name="nifty_market_data"
 )
@@ -66,6 +67,14 @@ collection = client.get_or_create_collection(
 # STORE DATA
 # -------------------------
 def store_in_chromadb(documents, embeddings, metadata):
+    """Store documents - clears existing data first to avoid duplicates."""
+    existing_count = collection.count()
+    if existing_count > 0:
+        # Delete all existing IDs to start fresh
+        existing_ids = collection.get()["ids"]
+        if existing_ids:
+            collection.delete(ids=existing_ids)
+        print(f"Cleared {existing_count} old documents from vector database.")
 
     collection.add(
         documents=documents,
@@ -79,7 +88,7 @@ def store_in_chromadb(documents, embeddings, metadata):
 # SEARCH FUNCTION
 # -------------------------
 def search_market_data(query):
-
+    """Search market data using a query string."""
     query_embedding = embedding_model.encode([query])
 
     results = collection.query(
@@ -87,7 +96,8 @@ def search_market_data(query):
         n_results=2
     )
 
-    return results["documents"]
+    # Return flattened list of documents
+    return results.get("documents", [[]])[0] if results else []
 
 
 # -------------------------
@@ -103,6 +113,16 @@ def build_vector_database():
     print("Vector database created successfully!")
 
 
+def search_stock_info(query):
+    """Search for stock information using the query."""
+    query_embedding = embedding_model.encode([query])
+    results = collection.query(
+        query_embeddings=query_embedding.tolist(),
+        n_results=2
+    )
+    return results.get("documents", [[]])[0] if results else []
+
+
 # -------------------------
 # RUN
 # -------------------------
@@ -111,11 +131,6 @@ if __name__ == "__main__":
 
     # Test search
     print("\nSample Query Result:")
-    print(search_market_data("market trend"))
-
-def search_stock_info(query):
-    results = collection.query(
-        query_texts=[query],
-        n_results=2
-    )
-    return results["documents"]
+    results = search_market_data("market trend")
+    for doc in results:
+        print(doc[:200] + "...")

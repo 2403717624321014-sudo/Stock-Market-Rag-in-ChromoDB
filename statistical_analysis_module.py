@@ -25,14 +25,14 @@ def analyze_documents(documents):
     volatility = std_dev
 
     if volatility < 20:
-        risk = "🟢 Low Risk"
+        risk = "[LOW RISK]"
     elif volatility < 50:
-        risk = "🟡 Medium Risk"
+        risk = "[MEDIUM RISK]"
     else:
-        risk = "🔴 High Risk"
+        risk = "[HIGH RISK]"
 
-    trend = "📈 Bullish Trend" if all_prices[-1] > all_prices[0] else "📉 Bearish Trend"
-    signal = "✅ BUY Recommendation" if "Bullish" in trend else "❌ SELL Recommendation"
+    trend = "[BULLISH TREND]" if all_prices[-1] > all_prices[0] else "[BEARISH TREND]"
+    signal = "[BUY RECOMMENDED]" if "BULLISH" in trend else "[SELL RECOMMENDED]"
 
     return {
         "Mean Price": mean_price,

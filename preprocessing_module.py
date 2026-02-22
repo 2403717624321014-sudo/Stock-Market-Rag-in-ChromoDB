@@ -32,6 +32,13 @@ def main():
     except FileNotFoundError:
         print("Error: nifty_corpus.json not found. Run data_collection_module.py first.")
         return
+    except json.JSONDecodeError:
+        print("Error: nifty_corpus.json is not valid JSON.")
+        return
+
+    if not data:
+        print("Warning: nifty_corpus.json is empty.")
+        return
 
     processed_data = []
 
@@ -47,7 +54,8 @@ def main():
     with open("processed_nifty_data.json", "w", encoding="utf-8") as f:
         json.dump(processed_data, f, indent=4)
 
-    print("Preprocessing completed. Data saved to processed_nifty_data.json")
+    print("✓ Preprocessing completed. Data saved to processed_nifty_data.json")
+    print(f"  Processed {len(processed_data)} records.")
 
 if __name__ == "__main__":
     main()

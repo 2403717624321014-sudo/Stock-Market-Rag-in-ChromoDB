@@ -22,23 +22,30 @@ def main():
     except FileNotFoundError:
         print("Error: processed_nifty_data.json not found. Run preprocessing_module.py first.")
         return
+    except json.JSONDecodeError:
+        print("Error: processed_nifty_data.json is not valid JSON.")
+        return
+
+    if not data:
+        print("Warning: processed_nifty_data.json is empty.")
+        return
 
     print("--- Financial Indicators Analysis ---")
     for entry in data:
         prices = entry.get("clean_prices", [])
-        source = entry.get("source")
+        source = entry.get("source", "Unknown")
         
         print(f"\nSource: {source}")
         if not prices:
-            print("No price data found in this source.")
+            print("  No price data found in this source.")
             continue
             
         sma_val = calculate_sma(prices)
         rsi_val = calculate_rsi(prices)
         
-        print(f"Prices detected: {prices}")
-        print(f"SMA (window=3): {sma_val}")
-        print(f"RSI Status: {rsi_val}")
+        print(f"  Prices detected: {prices}")
+        print(f"  SMA (window=3): {sma_val}")
+        print(f"  RSI Status: {rsi_val}")
 
 if __name__ == "__main__":
     main()
