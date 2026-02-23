@@ -3,7 +3,7 @@
    Handles API calls, UI state, history, toasts, and rendering
    ============================================================ */
 
-const API_BASE = '';  // Same origin via FastAPI
+const API_URL = "http://127.0.0.1:8000/query";  // Same origin via FastAPI
 
 // -----------------------------------------------
 // DOM References
@@ -548,3 +548,18 @@ document.addEventListener('keydown', (e) => {
     // Render any existing history (populates drawer when opened)
     renderHistory();
 })();
+
+function fakeDemoResponse() {
+    showAnswer({
+        answer: "This is a demo MVP UI. Backend API will be integrated in the production version.",
+        mean_price: "₹2,450",
+        volatility: "Medium",
+        risk: "Moderate",
+        trend: "Bullish",
+        signal: "BUY",
+        docs: [
+            { source: "NIFTY 50 Report", content: "Market shows strong bullish momentum driven by IT and Banking stocks." },
+            { source: "Economic Survey", content: "GDP growth outlook remains positive, boosting investor confidence." }
+        ]
+    });
+}
