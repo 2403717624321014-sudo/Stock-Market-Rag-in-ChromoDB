@@ -5,8 +5,7 @@ A complete Retrieval-Augmented Generation (RAG) system for analyzing NIFTY 50 st
 ---
 
 🔗 **Live Demo (MVP):**  
- https://2403717624321014-sudo.github.io/RAG-SYSTEMS/
-
+  https://2403717624321014-sudo.github.io/Stock-Market-Rag-in-ChromoDB/
 ---
 
 ## 📋 System Overview
