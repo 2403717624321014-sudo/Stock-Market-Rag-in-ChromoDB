@@ -3,7 +3,7 @@
    Handles API calls, UI state, history, toasts, and rendering
    ============================================================ */
 
-const API_BASE = '';  // Same origin via FastAPI
+const API_BASE = "";  // Same origin via FastAPI
 
 // -----------------------------------------------
 // DOM References
@@ -129,32 +129,15 @@ function buildTickerTape() {
 // HEALTH CHECK
 // -----------------------------------------------
 async function checkHealth() {
-    try {
-        const res = await fetch(`${API_BASE}/health`);
-        if (!res.ok) throw new Error('not ok');
-        const data = await res.json();
+    statusDot.className = 'status-dot connected';
+    statusText.textContent = 'MVP Demo Mode';
 
-        if (data.status === 'healthy') {
-            statusDot.className = 'status-dot connected';
-            statusText.textContent = 'System Online';
+    const count = 384;
+    docCount.textContent = count;
+    if (hmDocs) hmDocs.textContent = count.toLocaleString();
 
-            const count = data.documents_indexed ?? 0;
-            docCount.textContent = count;
-            if (hmDocs) hmDocs.textContent = count.toLocaleString();
-
-            // animate doc counter
-            animateCounter(docCount, count, 1000);
-        } else {
-            statusDot.className = 'status-dot degraded';
-            statusText.textContent = 'Degraded';
-        }
-    } catch {
-        statusDot.className = 'status-dot error';
-        statusText.textContent = 'Offline';
-        showToast('Backend is offline. Some features may not work.', 'error', 5000);
-    }
+    animateCounter(docCount, count, 800);
 }
-
 // -----------------------------------------------
 // INPUT HANDLING
 // -----------------------------------------------
@@ -287,7 +270,6 @@ async function handleSubmit() {
     const query = queryInput.value.trim();
     if (!query || query.length < 3) return;
 
-    // Update counters
     totalQueries++;
     localStorage.setItem('stockrag_query_count', totalQueries);
     if (hmQueries) hmQueries.textContent = totalQueries;
@@ -297,33 +279,43 @@ async function handleSubmit() {
     resultsSection.hidden = true;
     skeletonSection.hidden = false;
 
-    // Auto-scroll to skeleton
     skeletonSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
 
-    try {
-        const res = await fetch(`${API_BASE}/query`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ query, n_results: 3 }),
-        });
+    // 🔥 MVP DEMO MODE (NO BACKEND)
+    setTimeout(() => {
+        const demoData = {
+            question: query,
+            answer: `This is a demo AI-generated response for: "${query}".\n\nIn the production version, this will be answered using real-time RAG retrieval from NIFTY 50 market documents.`,
+            analysis: {
+                mean_price: 2450,
+                volatility: 1.87,
+                risk_level: "Moderate",
+                trend: "Bullish",
+                trading_signal: "BUY"
+            },
+            results: [
+                {
+                    relevance: 91.2,
+                    source: "NIFTY 50 Market Report",
+                    date: "2025",
+                    content: "The NIFTY 50 index shows strong bullish momentum driven by IT, Banking, and Energy sector stocks."
+                },
+                {
+                    relevance: 87.5,
+                    source: "Financial Times India",
+                    date: "2025",
+                    content: "Indian equities remain resilient supported by strong GDP growth, FII inflows, and sectoral recovery."
+                }
+            ]
+        };
 
-        if (!res.ok) {
-            const errData = await res.json().catch(() => ({}));
-            throw new Error(errData.detail || `Server error ${res.status}`);
-        }
-
-        const data = await res.json();
         saveHistory(query);
-        renderResults(data, query);
-        showToast('Answer ready!', 'success', 2500);
+        renderResults(demoData, query);
+        showToast('Demo answer generated!', 'success', 2500);
 
-    } catch (err) {
-        showError(`Query failed: ${err.message || 'Unknown error'}`);
-        showToast(`Error: ${err.message}`, 'error', 4000);
-    } finally {
         setLoadingState(false);
         skeletonSection.hidden = true;
-    }
+    }, 1200);
 }
 
 // -----------------------------------------------
@@ -548,3 +540,18 @@ document.addEventListener('keydown', (e) => {
     // Render any existing history (populates drawer when opened)
     renderHistory();
 })();
+
+function fakeDemoResponse() {
+    showAnswer({
+        answer: "This is a demo MVP UI. Backend API will be integrated in the production version.",
+        mean_price: "₹2,450",
+        volatility: "Medium",
+        risk: "Moderate",
+        trend: "Bullish",
+        signal: "BUY",
+        docs: [
+            { source: "NIFTY 50 Report", content: "Market shows strong bullish momentum driven by IT and Banking stocks." },
+            { source: "Economic Survey", content: "GDP growth outlook remains positive, boosting investor confidence." }
+        ]
+    });
+}
